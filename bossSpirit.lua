@@ -43,14 +43,16 @@ end
 function BossSpirit:createSequence()
     local x = 0
     local sequence = {}
+    math.randomseed(os.time())
 
     for i = 1, 5 do
-        x = math.random(1, 4)
+        x = math.random(1,4)
         table.insert(sequence, keys[x])
     end
 
     return sequence
 end
+
 
 function BossSpirit:deleteSequence(sequence)
     for i, key in ipairs(sequence) do
