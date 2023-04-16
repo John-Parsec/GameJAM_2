@@ -1,6 +1,7 @@
 Classe = require "classic"
 require "jogo"
 require "bosses"
+require "bossSpirit"
 require "player"
 require "cenario"
 

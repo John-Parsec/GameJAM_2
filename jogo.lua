@@ -9,6 +9,10 @@ end
 function Jogo:update(dt)
     player:update(dt)
     bosses:update(dt)
+
+    if #bosses.sequence == #player.sequence then
+        print(verificaSequencia(player.sequence, bosses.sequence))
+    end
 end
 
 function Jogo:draw()
@@ -17,11 +21,12 @@ function Jogo:draw()
     bosses:draw()
 end
 
-function verificaColisao(player, box)
-    if player.x < box.x + box.w and
-        player.x  + (player.scale * player.sprite:getWidth())> box.x and
-        player.y < box.y + box.h and
-        player.y + (player.scale * player.sprite:getHeight()) > box.y then
-            return true
+function verificaSequencia(playerSequence, bossSequence)
+    for i, key in ipairs(playerSequence) do
+        if playerSequence[i] ~= bossSequence[i] then
+            return false
+        end
     end
+
+    return true
 end
