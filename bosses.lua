@@ -14,7 +14,6 @@ function Bosses:update(dt)
             self.sequence = self.bossSpirit:createSequence()
             s = ''
             for i=1, #self.sequence do
-                print(self.sequence[i])
                 s = s..tostring(self.sequence[i])..' '
             end
         end

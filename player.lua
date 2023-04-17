@@ -1,5 +1,9 @@
 Player = Classe:extend()
 
+buttomSound = love.audio.newSource("sounds/Hitsound 1.mp3", "stream")
+deathSound = love.audio.newSource("sounds/Death Sound 4.mp3", "stream")
+hitSound = love.audio.newSource("sounds/Denied.mp3", "stream")
+
 function Player:new()
     self.w = 14
     self.h = 13
@@ -8,18 +12,32 @@ function Player:new()
     self.life = 10
     self.sequence = {}
     self.spriteSlime = SlimeAnimation(love.graphics.newImage("images/player/idle.png"), self.w, self.h, 1)
+    self.spriteSlimeHit = SlimeAnimation(love.graphics.newImage("images/player/hit.png"), 14, 14, 0.4)
 end
 
 function Player:update(dt)
-    self.spriteSlime.currentTime = self.spriteSlime.currentTime + dt
-    if self.spriteSlime.currentTime >= self.spriteSlime.duration then
-        self.spriteSlime.currentTime = self.spriteSlime.currentTime - self.spriteSlime.duration
+    if not hitSound:isPlaying() then 
+        self.spriteSlime.currentTime = self.spriteSlime.currentTime + dt
+        if self.spriteSlime.currentTime >= self.spriteSlime.duration then
+            self.spriteSlime.currentTime = self.spriteSlime.currentTime - self.spriteSlime.duration
+        end
+    else
+        self.spriteSlimeHit.currentTime = self.spriteSlimeHit.currentTime + dt
+        if self.spriteSlimeHit.currentTime >= self.spriteSlimeHit.duration then
+            self.spriteSlimeHit.currentTime = self.spriteSlimeHit.currentTime - self.spriteSlimeHit.duration
+        end
     end
 end
 
 function Player:draw()
-    local spriteNum = math.floor(self.spriteSlime.currentTime / self.spriteSlime.duration * #self.spriteSlime.quads) + 1
-    love.graphics.draw(self.spriteSlime.spriteSheet, self.spriteSlime.quads[spriteNum], self.x, self.y, 0, 4)
+
+    if not hitSound:isPlaying() then 
+        local spriteNum = math.floor(self.spriteSlime.currentTime / self.spriteSlime.duration * #self.spriteSlime.quads) + 1
+        love.graphics.draw(self.spriteSlime.spriteSheet, self.spriteSlime.quads[spriteNum], self.x, self.y, 0, 4)
+    else
+        local spriteNum = math.floor(self.spriteSlimeHit.currentTime / self.spriteSlimeHit.duration * #self.spriteSlimeHit.quads) + 1
+        love.graphics.draw(self.spriteSlimeHit.spriteSheet, self.spriteSlimeHit.quads[spriteNum], self.x, self.y, 0, 4)
+    end
 end
 
 function SlimeAnimation(image, width, height, duration)
@@ -43,17 +61,11 @@ function Player:removeSequence()
     self.sequence = {}
 end
 
-function love.keypressed( key )
-    if key == "up" then
-       table.insert(player.sequence, key)
-    end
-    if key == "down" then
-        table.insert(player.sequence, key)
-     end
-     if key == "left" then
-        table.insert(player.sequence, key)
-     end
-     if key == "right" then
-        table.insert(player.sequence, key)
-     end
- end
+function Player:playerDeath()
+    deathSound:play()
+end
+
+function Player:playerHit()
+    hitSound:stop()
+    hitSound:play()
+end

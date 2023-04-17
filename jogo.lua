@@ -1,40 +1,70 @@
 Jogo = Classe:extend()
 
 function Jogo:new()
+    self.game = true
+    self.cont = 1
+    self.verificaSequencia = true
     cenario = Cenario()
     player = Player()
     bosses = Bosses()
 end
 
 function Jogo:update(dt)
-    player:update(dt)
-    bosses:update(dt)
-    boss = bosses:getBoss()
-    if #bosses.sequence == #player.sequence then
+    
+    if self.game then
+        player:update(dt)
+        bosses:update(dt)
+        boss = bosses:getBoss()
 
-        if verificaSequencia(player.sequence,bosses.sequence) then
-            boss.life = boss.life - #bosses.sequence
-        else
+
+
+        if not self.verificaSequencia then
+            player:playerHit()
             player.life = player.life - 2
+
+            self.cont = 1
+            self.verificaSequencia = true
+            bosses.sequence = nil
+            player.sequence = {}
+            
+        elseif #bosses.sequence == #player.sequence then
+
+            if self.verificaSequencia then
+                boss.life = boss.life - #bosses.sequence
+                boss.bossSpiritHit()
+            end
+
+            self.cont = 1
+            self.verificaSequencia = true
+            bosses.sequence = nil
+            player.sequence = {}
+        end
+    
+        -- Checar vida do player
+        if player.life <= 0 then
+            player:playerDeath()
+            self.game = false
         end
 
-        bosses.sequence = nil
-        player.sequence = {}
-    end
-  
-    -- Checar vida do boss
-    if boss.life <= 0 then
-        bosses = Bosses()
+        -- Checar vida do boss
+        if boss.life <= 0 then
+            boss:bossSpiritDeath()
+            self.game = false
+        end
     end
 end
 
 function Jogo:draw()
     cenario:draw()
-    player:draw()
-    bosses:draw()
-    Display()
+
+    if self.game then
+        player:draw()
+        bosses:draw()
+        Display()
+    end
 end
 
+--[[
 function verificaSequencia(playerSequence, bossSequence)
     for i, key in ipairs(playerSequence) do
         if playerSequence[i] ~= bossSequence[i] then
@@ -43,7 +73,7 @@ function verificaSequencia(playerSequence, bossSequence)
     end
 
     return true
-end
+end]]--
 
 function Display()
     local font1 = love.graphics.newFont("fonts/Minecrafter.Alt.ttf", 16)
@@ -71,3 +101,19 @@ function Display()
         love.graphics.print(boss_text, boss.x-font.getWidth(font,boss_text)/2 + 25, boss.y-40)
     end
 end
+
+function love.keypressed( key )
+    if jogo.game then
+        if bosses.sequence[jogo.cont] == key then
+            jogo.cont = jogo.cont + 1
+            table.insert(player.sequence, key)
+        else
+            jogo.verificaSequencia = false
+        end
+
+        if key == "up" or key == "down" or key == "left" or key == "right"then
+            buttomSound:stop()
+            buttomSound:play()
+        end
+    end
+ end
