@@ -2,40 +2,38 @@ Bosses = Classe:extend()
 
 function Bosses:new()
     self.bossNumber = 1
-    self.w = 14
-    self.h = 19
-    self.spriteSpirit = BossAnimation(love.graphics.newImage("images/bosses/Spirit_Idle.png"), self.w, self.h, 1)
+    self.sequence = {}
+    self.qtdeSequences = 0
+    self.bossSpirit = BossSpirit()
 end
 
 function Bosses:update(dt)
     if self.bossNumber == 1 then
-        self.spriteSpirit.currentTime = self.spriteSpirit.currentTime + dt
-        if self.spriteSpirit.currentTime >= self.spriteSpirit.duration then
-            self.spriteSpirit.currentTime = self.spriteSpirit.currentTime - self.spriteSpirit.duration
+        self.bossSpirit:update(dt)
+
+        if #self.sequence == 0 then
+            self.sequence = self.bossSpirit:createSequence()
+            s = ''
+            for i=1, #self.sequence do
+                s = s..tostring(self.sequence[i])..' '
+            end
+        end
+        
+        if self.qtdeSequences == 3 and self.bossSpirit.tamSquence < self.bossSpirit.max then
+            self.bossSpirit.tamSquence = self.bossSpirit.tamSquence + 2
+            self.qtdeSequences = 0
         end
     end
 end
 
 function Bosses:draw()
     if self.bossNumber == 1 then
-        local spriteNum = math.floor(self.spriteSpirit.currentTime / self.spriteSpirit.duration * #self.spriteSpirit.quads) + 1
-        love.graphics.draw(self.spriteSpirit.spriteSheet, self.spriteSpirit.quads[spriteNum], love.graphics.getWidth() - (10 * self.w), (love.graphics.getHeight()/2) - (3 * self.h) , 0, 4)
+        self.bossSpirit:draw()
     end
 end
 
-function BossAnimation(image, width, height, duration)
-    local animation = {}
-    animation.spriteSheet = image;
-    animation.quads = {};
-
-    for y = 0, image:getHeight() - height, 44 do
-        for x = 0, image:getWidth() - width, width do
-            table.insert(animation.quads, love.graphics.newQuad(x, y, width, height, image:getDimensions()))
-        end
+function Bosses:getBoss()
+    if self.bossNumber == 1 then
+        return self.bossSpirit 
     end
-
-    animation.duration = duration or 1
-    animation.currentTime = 0
-
-    return animation
 end
