@@ -11,6 +11,9 @@ function Player:new()
     self.y = love.graphics.getHeight()/2
     self.life = 10
     self.sequence = {}
+    self.firstPlay = true
+    self.bestTimeMinutes = 0
+    self.bestTimeSeconds = 0
     self.spriteSlime = SlimeAnimation(love.graphics.newImage("images/player/idle.png"), self.w, self.h, 1)
     self.spriteSlimeHit = SlimeAnimation(love.graphics.newImage("images/player/hit.png"), 14, 14, 0.4)
 end

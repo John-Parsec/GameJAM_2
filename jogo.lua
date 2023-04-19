@@ -24,7 +24,8 @@ function Jogo:update(dt)
 
             self.cont = 1
             self.verificaSequencia = true
-            bosses.sequence = nil
+            bosses.qtdeSequences = bosses.qtdeSequences + 1
+            bosses.sequence = {}
             player.sequence = {}
             
         elseif #bosses.sequence == #player.sequence then
@@ -36,7 +37,8 @@ function Jogo:update(dt)
 
             self.cont = 1
             self.verificaSequencia = true
-            bosses.sequence = nil
+            bosses.qtdeSequences = bosses.qtdeSequences + 1
+            bosses.sequence = {}
             player.sequence = {}
         end
     
@@ -50,30 +52,42 @@ function Jogo:update(dt)
         if boss.life <= 0 then
             if bosses.bossNumber == 1 then
                 boss:bossSpiritDeath()
-                --bosses.bossNumber = 2
+                bosses.bossNumber = 1
             end
             
             if bosses.bossNumber == 1 then
                 self.game = false
             end
         end
+    elseif player.life > 0 then
+        --Atualiza o melhor tempo
+        if jogo.minutes < player.bestTimeMinutes or player.firstPlay then
+            player.firstPlay = false
+            player.bestTimeMinutes = jogo.minutes
+            player.bestTimeSeconds = jogo.seconds
+        elseif jogo.minutes == player.bestTimeMinutes and jogo.seconds < player.bestTimeSeconds then
+            player.bestTimeMinutes = jogo.minutes
+            player.bestTimeSeconds = jogo.seconds
+        end
     end
 end
 
 function Jogo:draw()
     cenario:draw()
+    DisplayBestTime()
 
     if self.game then
         player:draw()
         bosses:draw()
         Display()
+    else
+        DisplayEnd()
     end
 end
 
 function Display()
     local font1 = love.graphics.newFont("fonts/Minecrafter.Alt.ttf", 16)
     local font2 = love.graphics.newFont("fonts/Minecraft.ttf", 16)
-    local font3 = love.graphics.newFont("fonts/Cave-Story.ttf", 16)
 
     --Timer
     love.graphics.setFont(font2)
@@ -107,6 +121,30 @@ function Display()
     end
 end
 
+function DisplayEnd()
+    local font1 = love.graphics.newFont("fonts/Minecraft.ttf", 16)
+
+    end_text = 'Aperte ESC ou SPACE para reiniciar'
+    love.graphics.setFont(font1)
+    love.graphics.newText(font1,end_text)
+    x = love.graphics.getWidth()
+    y = love.graphics.getHeight()
+    x, y = x/2, y/2
+    love.graphics.print(end_text, x-font1.getWidth(font1,end_text)/2, y-font1.getHeight(font1,end_text)/2, 0, 1,1,0)
+end
+
+function DisplayBestTime()
+    local font1 = love.graphics.newFont("fonts/Minecraft.ttf", 16)
+
+    bestTime_text = 'Melhor tempo: '..tostring(player.bestTimeMinutes)..':'..tostring(player.bestTimeSeconds)
+    love.graphics.setFont(font1)
+    love.graphics.newText(font1,bestTime_text)
+    x = love.graphics.getWidth()
+    y = love.graphics.getHeight()
+    x, y = x * 0.85, y * 0.85
+    love.graphics.print(bestTime_text, x-font1.getWidth(font1,bestTime_text)/2, y-font1.getHeight(font1,bestTime_text)/2, 0, 1,1,0)
+end
+
 function love.keypressed( key )
     if jogo.game then
         if bosses.sequence[jogo.cont] == key then
@@ -117,7 +155,7 @@ function love.keypressed( key )
         end
 
         if bosses.bossNumber == 1 then
-            if key == "up" or key == "down" or key == "left" or key == "right"then
+            if key == "up" or key == "down" or key == "left" or key == "right" then
                 buttomSound:stop()
                 buttomSound:play()
             end
@@ -125,7 +163,7 @@ function love.keypressed( key )
     else
         if key == "space" or key == "escape" then
             cenario = Cenario()
-            player = Player()
+            player.life = 10
             bosses = Bosses()
             jogo.game = true
             jogo.cont = 1

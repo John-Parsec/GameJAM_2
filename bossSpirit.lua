@@ -9,7 +9,9 @@ function BossSpirit:new()
     self.h = 19
     self.x = love.graphics.getWidth() - (10 * self.w)
     self.y = (love.graphics.getHeight()/2) - (5 * self.h)
-    self.life = 50
+    self.life = 60
+    self.tamSquence = 3
+    self.max = 8
     self.spriteSpirit = BossSpiritAnimation(love.graphics.newImage("images/bosses/Spirit_Idle.png"), self.w, self.h, 1)
     self.spriteSpiritHit = BossSpiritAnimation(love.graphics.newImage("images/bosses/Spirit_Hit.png"), 17, 18, 1)
 end
@@ -69,7 +71,7 @@ function BossSpirit:createSequence()
     local sequence = {}
     math.randomseed(os.time())
 
-    for i = 1, 5 do
+    for i = 1, self.tamSquence do
         x = math.random(1,4)
         table.insert(sequence, keys[x])
     end
